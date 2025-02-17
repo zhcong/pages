@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web BLE Example</title>
+</head>
+
+<body>
+    <button id="connectButton">Connect to BLE Device</button>
+    <script>
+        const connectButton = document.getElementById('connectButton');
+
+        connectButton.addEventListener('click', async () => {
+            try {
+                // 请求访问蓝牙设备
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: ['battery_service'] }]
+                });
+
+                // 连接到设备
+                const server = await device.gatt.connect();
+
+                // 获取电池服务
+                const service = await server.getPrimaryService('battery_service');
+
+                // 获取电池电量特征
+                const characteristic = await service.getCharacteristic('battery_level');
+
+                // 读取电池电量
+                const value = await characteristic.readValue();
+                const batteryLevel = value.getUint8(0);
+
+                console.log(`Battery Level: ${batteryLevel}%`);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>
